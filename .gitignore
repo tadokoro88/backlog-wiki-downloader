@@ -1,0 +1,16 @@
+# Generated files
+wiki_list.csv
+
+# Downloaded wiki data
+*/json/
+*/md/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
