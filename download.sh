@@ -15,7 +15,8 @@ echo ""
 printf "Backlog Space URL を入力してください (e.g., https://your-space.backlog.jp): "
 read BACKLOG_BASE_URL
 printf "Backlog API Key を入力してください: "
-read BACKLOG_API_KEY
+read -s BACKLOG_API_KEY
+echo ""
 printf "Backlog Project Key を入力してください (e.g., MY_PROJECT): "
 read BACKLOG_PROJECT_KEY
 
@@ -59,7 +60,7 @@ fi
 
 echo "✓ 認証情報を確認しました"
 echo "  BACKLOG_BASE_URL: $BACKLOG_BASE_URL"
-echo "  BACKLOG_API_KEY: ${BACKLOG_API_KEY:0:10}..."
+echo "  BACKLOG_API_KEY: ${BACKLOG_API_KEY:0:4}****"
 echo "  BACKLOG_PROJECT_KEY: $BACKLOG_PROJECT_KEY"
 echo ""
 
@@ -144,12 +145,18 @@ echo ""
 
 tail -n +2 "$WIKI_LIST" | while IFS=, read -r wiki_id title; do
     ((download_count++))
+
+    if [[ ! "$wiki_id" =~ ^[0-9]+$ ]]; then
+        echo "[$download_count/$total] ✗ スキップ: 無効な Wiki ID '$wiki_id'"
+        continue
+    fi
+
     echo -n "[$download_count/$total] Wiki を取得しています $wiki_id... "
 
     response=$(curl -s "${BASE_URL}/wikis/${wiki_id}?apiKey=${BACKLOG_API_KEY}")
 
     if echo "$response" | jq -e . >/dev/null 2>&1; then
-        safe_name=$(echo "$title" | sed 's/[<>:"/\\|?*]/_/g' | cut -c1-200)
+        safe_name=$(echo "$title" | sed 's/[^a-zA-Z0-9._-]/_/g' | sed 's/__*/_/g' | sed 's/^_//;s/_$//' | cut -c1-200)
         filename="${JSON_DIR}/$(printf "%010d" $wiki_id)_${safe_name}.json"
         echo "$response" | jq . > "$filename"
         echo "✓ $title"
