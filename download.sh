@@ -53,8 +53,8 @@ if [[ -z "$BACKLOG_PROJECT_KEY" ]]; then
     exit 1
 fi
 
-if [[ ! "$BACKLOG_PROJECT_KEY" =~ ^[A-Z_]+$ ]]; then
-    echo "エラー: Project Key は大文字とアンダースコア (_) のみ使用できます"
+if [[ ! "$BACKLOG_PROJECT_KEY" =~ ^[A-Z][A-Z0-9_]*$ ]]; then
+    echo "エラー: Project Key は先頭が大文字の英字で、大文字・数字・アンダースコア (_) のみ使用できます"
     exit 1
 fi
 
